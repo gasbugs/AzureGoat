@@ -51,7 +51,7 @@ Currently, the project  contains the following vulnerabilities/misconfigurations
 
 ### Installation
 
-**East US update:** Follow [DEPLOYMENT.md](DEPLOYMENT.md) for the current Terraform workflow, Windows/Linux setup, quota requirements, and cleanup. The resource group is now created by Terraform. The application remains intentionally vulnerable for isolated security training.
+**Australia East exception:** This lab defaults to `australiaeast`. Actual Y1 and B1 creation requests in East US were rejected by the tested subscription's quota, while Y1 creation in Australia East succeeded. Follow [DEPLOYMENT.md](DEPLOYMENT.md) for the current Terraform workflow, Windows/Linux setup, quota requirements, and cleanup. Terraform creates the resource group. The application remains intentionally vulnerable for isolated security training.
 
 To ease the deployment process the user just needs to clone this repo, login to azure cli then initialize and apply the Terraform file. This workflow will deploy the whole infrastructure and output the hosted application's URL.
 

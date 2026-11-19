@@ -1,18 +1,30 @@
 # Verification status — 2026-11-19
 
-## Completed
+## Actual deployment
 
-- Terraform initialization with AzureRM 4.81.0, Archive 2.8.1 and Random 3.9.1.
-- `terraform fmt -check` and `terraform validate`.
-- Python build regression test: repeated rendering preserves source files, excludes old runtime packages and updates the generated API, asset and VM addresses.
-- Full Terraform plan against the currently selected subscription: **451 additions, 0 changes, 0 deletions**. Most additions are the existing 140 asset files uploaded into three lab containers.
+AzureGoat was deployed to **Australia East** in the explicitly approved paid subscription, in isolated resource group `azuregoat-australiaeast`. The separate East US firewall lab was not modified. The empty failed East US AzureGoat group was removed and its absence verified.
 
-## Not yet verified
+- Y1 Linux Consumption plan: successfully created. Actual East US Y1 and B1 creation attempts failed with effective quota 0, despite a SKU API showing 30. This is specific to the tested subscription.
+- VM: `Standard_D2s_v6`, Ubuntu 24.04 LTS. D2s_v7 was absent from the tested Australia East SKU list.
+- Functions: Python 3.11 backend and Node.js 22 frontend on Functions 4.
+- Cosmos DB: serverless database and both containers created; seven initial blog posts returned by the live API.
+- SSH as the lab's Justin user: succeeded; Ubuntu 24.04, active Apache, Azure CLI 2.93.0 and the authorized key were verified inside the VM.
+- Automation: `Get-AzureVM` completed and returned the deployed developer VM using the managed identity.
+- Registration and login: succeeded with a uniquely named temporary lab user; a valid token and matching user were returned. Passwords and tokens were not logged.
 
-**No live AzureGoat deployment has been performed for this update.** Application availability, remote Function builds, VM initialization and Automation runbook execution remain unverified until an eligible target subscription is approved and the live tests succeed.
+## Regression checks
 
-At the time of checking, the current Free Trial subscription had East US Y1 quota **0**, and all **4/4 regional vCPUs** were in use by the separate firewall lab. A valid Terraform plan does not bypass those limits. Existing lab resources were not changed or deleted.
+- Terraform initialization, formatting and validation succeeded. After the final deployment, a refreshed `terraform plan -detailed-exitcode` exited 0 with **No changes**. AzureRM 4 emits storage-account-name deprecation warnings; the locked provider version still supports those arguments.
+- Build regression tests passed: repeated rendering does not mutate sources, excludes old runtime packages, renders deployment addresses and omits a nonexistent upstream font stylesheet.
+- HTTP trigger routes no longer begin with `/`, which caused a double-slash route and an empty response instead of the UI.
+- ZIP output paths include the source hash. Merely changing an app setting while retaining the same ZIP path did not reliably redeploy the changed code; the filename change makes the provider upload the new package.
 
-Another signed-in paid subscription showed Y1 SKU quota 30 and 10 available regional vCPUs, but its reported aggregate App Service regional limit was 0. These read-only figures do not guarantee that a deployment will be accepted. Its use for this lab is awaiting the user's choice.
+The final live smoke test passed: frontend HTML, both application JS/CSS assets, seven seeded posts, a seeded image, registration and login.
 
-The plan file is ignored and is specific to its selected subscription. Generate a fresh plan after choosing or changing the target subscription; do not apply an old saved plan to a different account.
+## Scope and limits
+
+These checks validate deployment, key application flows, VM initialization and runbook execution; they do not certify every exploitation exercise. Intentional application vulnerabilities, sample keys and public lab storage remain part of AzureGoat.
+
+The live lab is retained and incurs charges. State, generated credentials, local variable files and plan files are ignored by Git. The smoke test creates clearly named `deployment-check-...@example.invalid` users in the isolated lab.
+
+Australia East success in this paid subscription does not guarantee quota or capacity in another subscription, including Free Trial. No quota increase request was submitted.

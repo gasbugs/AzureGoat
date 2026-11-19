@@ -13,6 +13,12 @@ spec.loader.exec_module(prepare)
 
 
 class BuildTests(unittest.TestCase):
+    def test_http_routes_do_not_create_double_slash_urls(self):
+        for path in ("data/app/function.json", "react/webapp/function.json"):
+            config = json.loads((ROOT / "modules/module-1/resources/azure_function" / path).read_text(encoding="utf-8"))
+            trigger = next(binding for binding in config["bindings"] if binding["type"] == "httpTrigger")
+            self.assertFalse(trigger["route"].startswith("/"))
+
     def test_idempotent_build_keeps_sources_and_excludes_old_wheels(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -32,6 +38,7 @@ class BuildTests(unittest.TestCase):
             index = (root / ".build/frontend/webapp/index.html").read_text(encoding="utf-8")
             self.assertIn('https://assets.example/prod/webfiles/build/static/', index)
             self.assertNotIn('src="/', index)
+            self.assertNotIn('/fonts/index.css', index)
             js = (root / ".build/assets/webfiles/build/static/js/main.adc6b28e.js").read_text(encoding="utf-8")
             self.assertIn("https://backend.example", js)
             self.assertNotIn("AZURE_FUNCTION_URL", js)

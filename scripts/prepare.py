@@ -44,6 +44,8 @@ def prepare(root, config):
     web_url = asset_url + "/webfiles/build"
     for html in (build / "frontend/webapp/index.html", build / "assets/webfiles/build/index.html"):
         text = html.read_text(encoding="utf-8")
+        # The upstream build has no local fonts directory; Google Fonts above supplies it.
+        text = text.replace('<link rel="stylesheet" href="/fonts/index.css"/>', '')
         text = re.sub(r'''((?:src|href)=["'])/''', lambda m: m.group(1) + web_url + "/", text)
         html.write_text(text, encoding="utf-8")
     for js in (build / "assets/webfiles/build/static/js").glob("*.js"):

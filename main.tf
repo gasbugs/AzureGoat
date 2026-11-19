@@ -20,11 +20,20 @@ variable "resource_group" {
 }
 variable "location" {
   type    = string
-  default = "eastus"
+  default = "australiaeast"
 }
 variable "vm_size" {
   type    = string
-  default = "Standard_D2s_v7"
+  default = "Standard_D2s_v6"
+}
+variable "function_plan_sku" {
+  description = "Y1 Consumption or B1 dedicated fallback when the region denies new Y1 plans. B1 has an hourly charge."
+  type        = string
+  default     = "Y1"
+  validation {
+    condition     = contains(["Y1", "B1"], var.function_plan_sku)
+    error_message = "Choose Y1 or B1."
+  }
 }
 variable "python_executable" {
   description = "Python 3 with scripts/requirements.txt installed; absolute path recommended."
@@ -142,13 +151,13 @@ resource "terraform_data" "prepare" {
 data "archive_file" "backend" {
   type        = "zip"
   source_dir  = "${local.build_dir}/backend"
-  output_path = "${local.build_dir}/backend.zip"
+  output_path = "${local.build_dir}/backend-${local.source_hash}.zip"
   depends_on  = [terraform_data.prepare]
 }
 data "archive_file" "frontend" {
   type        = "zip"
   source_dir  = "${local.build_dir}/frontend"
-  output_path = "${local.build_dir}/frontend.zip"
+  output_path = "${local.build_dir}/frontend-${local.source_hash}.zip"
   depends_on  = [terraform_data.prepare]
 }
 resource "azurerm_storage_blob" "assets" {
@@ -190,7 +199,7 @@ resource "azurerm_service_plan" "app_service_plan" {
   resource_group_name = azurerm_resource_group.lab.name
   location            = var.location
   os_type             = "Linux"
-  sku_name            = "Y1"
+  sku_name            = var.function_plan_sku
 }
 resource "azurerm_linux_function_app" "function_app" {
   name                        = local.backend_name
@@ -213,6 +222,7 @@ resource "azurerm_linux_function_app" "function_app" {
     AZUREGOAT_PACKAGE_HASH         = data.archive_file.backend.output_base64sha256
   }
   site_config {
+    always_on = var.function_plan_sku != "Y1"
     application_stack { python_version = "3.11" }
     cors { allowed_origins = ["*"] }
   }
@@ -235,6 +245,7 @@ resource "azurerm_linux_function_app" "function_app_front" {
     AZUREGOAT_PACKAGE_HASH         = data.archive_file.frontend.output_base64sha256
   }
   site_config {
+    always_on = var.function_plan_sku != "Y1"
     application_stack { node_version = "22" }
   }
   depends_on = [azurerm_storage_blob.assets]

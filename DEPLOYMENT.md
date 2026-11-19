@@ -1,6 +1,8 @@
-# East US deployment
+# Australia East deployment (AzureGoat exception)
 
-This fork defaults all regional resources, including the Cosmos DB replica, to `eastus`.
+This lab defaults all regional resources, including the Cosmos DB replica, to `australiaeast`. This is an explicit exception for AzureGoat; the separate firewall training lab remains in East US.
+
+On 2026-11-19 the tested paid subscription rejected actual Y1 and B1 plan creation in East US with effective quota 0, despite a SKU quota API displaying 30. A Y1 plan was successfully created in Australia East. This is a subscription-specific observation, not a claim that East US is unavailable for all Azure customers.
 
 The lab deliberately retains the upstream application vulnerabilities, public storage containers, exposed lab source package, sample credentials/keys, and resource-group-scoped privilege-escalation path. Use a dedicated lab resource group and subscription without production data. The deployment improvements below do not turn AzureGoat into a production application.
 
@@ -9,8 +11,8 @@ The lab deliberately retains the upstream application vulnerabilities, public st
 - Terraform >= 1.7, Azure CLI logged into the intended subscription.
 - Local Python >= 3.10, plus `scripts/requirements.txt` installed in a virtual environment.
 - Permission to create resources and assign roles within the lab resource group.
-- Available Linux Y1 App Service quota in East US, at least 2 regional vCPUs and 2 StandardDsv7Family vCPUs, and one Standard public IPv4 address.
-- The default VM is `Standard_D2s_v7` with Ubuntu 24.04 LTS. Override `vm_size` if your subscription supports a different SKU.
+- Available Linux Y1 App Service quota in Australia East, at least 2 regional vCPUs and 2 StandardDsv6Family vCPUs, and one Standard public IPv4 address.
+- The default VM is `Standard_D2s_v6` with Ubuntu 24.04 LTS. D2s_v7 was absent from the tested Australia East SKU list. Override `vm_size` if your subscription supports a different SKU.
 
 Free Trial subscriptions may have a Y1 limit of zero. A valid Terraform plan is not proof that quota or regional capacity permits deployment. Do not delete unrelated resources or switch subscriptions silently to work around a quota failure.
 
@@ -57,11 +59,12 @@ Creation and remote Function builds can take several minutes. Terraform installs
 ## What changed
 
 - One location variable controls the resource group, Cosmos account/replica, storage, Functions, VM and Automation resources.
-- AzureRM 4 resources, locked provider versions, Standard/Static public IP, Ubuntu 24.04 and D2s_v7 defaults replace obsolete deployment settings.
+- AzureRM 4 resources, locked provider versions, Standard/Static public IP, Ubuntu 24.04 and D2s_v6 defaults replace obsolete deployment settings.
+- HTTP trigger catch-all routes omit a leading slash so requests reach the app. The generated HTML omits the upstream missing local font stylesheet; the existing Google Fonts reference supplies the font.
 - Functions 4 remote builds install `azure-functions` and the backend requirements. The intentionally vulnerable application dependency versions remain part of the lab.
 - Deployment rendering uses portable Python instead of Bash `sed`, and writes only into ignored `.build/`. Tracked source files and placeholder fixtures remain reusable.
 - Cosmos database/containers are managed by Terraform. Initial records are inserted without reading `terraform.tfstate`, printing keys, or overwriting learner-modified records on a later apply.
-- ZIP outputs are outside ZIP input directories. Runtime packages do not expire after a 10-day SAS token.
+- ZIP outputs are outside ZIP input directories and their paths include the source hash, so AzureRM redeploys changed code rather than only updating app settings. Runtime packages do not expire after a 10-day SAS token.
 - Storage asset URLs and VM SSH configuration are rendered before upload. Changes to source files trigger a new build and deployment.
 - VM provisioning fails on errors, uses noninteractive installation and retries downloads. The sample Justin SSH key remains an intentional lab path.
 - The Automation runbook uses ordinary PowerShell with a user-assigned identity, and role assignments stay within the lab resource group.
@@ -70,8 +73,11 @@ Creation and remote Function builds can take several minutes. Terraform installs
 
 ```powershell
 python -m unittest discover -s scripts -p 'test_*.py' -v
+python scripts/smoke_test.py --frontend (terraform output -raw Target_URL) --api (terraform output -raw API_URL)
 terraform plan -detailed-exitcode
 ```
+
+The smoke test checks live HTML, JS/CSS, seeded posts/images and registration/login. It creates one uniquely named `deployment-check-...@example.invalid` user in the lab and never prints its password or token.
 
 The local test verifies that repeated preparation does not mutate source files, excludes old runtime wheels, updates asset/API/VM URLs, and preserves the intended lab package data. A successful local test does not certify a live deployment.
 
