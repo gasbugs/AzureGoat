@@ -1,6 +1,7 @@
 # Do not include azure-functions-worker as it may conflict with the Azure Functions platform
 
 # Minimum packages for azure functions
+azure-functions>=1.21,<2
 
 # Additional packages
 azure-cosmos==4.3.0

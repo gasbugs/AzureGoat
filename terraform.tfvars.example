@@ -1,0 +1,6 @@
+subscription_id = "YOUR-SUBSCRIPTION-ID"
+resource_group  = "azuregoat_app"
+location        = "eastus"
+vm_size         = "Standard_D2s_v7"
+# On Windows use the absolute path to .venv/Scripts/python.exe.
+python_executable = ".venv/bin/python"

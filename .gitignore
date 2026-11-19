@@ -1,0 +1,15 @@
+.terraform/
+.build/
+.venv/
+azure-goat-environment/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+*.log
+crash.*
+__pycache__/
+test-results/
+known_hosts*

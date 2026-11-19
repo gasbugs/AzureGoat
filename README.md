@@ -12,14 +12,14 @@ AzureGoat uses IaC (Terraform) to deploy the vulnerable cloud infrastructure on 
 - Secure Coding
 - Detection and mitigation
 
-The project is divided into modules and each module is a separate web application, powered by varied tech stacks and development practices. 
+The project is divided into modules and each module is a separate web application, powered by varied tech stacks and development practices.
 
 **Presented at**
 
 - [BlackHat USA 2022](https://www.blackhat.com/us-22/arsenal/schedule/index.html#azuregoat--a-damn-vulnerable-azure-infrastructure-28000)
 - [DC 30: Demo Labs](https://forum.defcon.org/node/242061)
 
-### Developed with :heart: by [INE](https://ine.com/) 
+### Developed with :heart: by [INE](https://ine.com/)
 
 [<img src="https://user-images.githubusercontent.com/25884689/184508144-f0196d79-5843-4ea6-ad39-0c14cd0da54c.png" alt="drawing" width="200"/>](https://discord.gg/TG7bpETgbg)
 
@@ -51,14 +51,17 @@ Currently, the project  contains the following vulnerabilities/misconfigurations
 
 ### Installation
 
-To ease the deployment process the user just needs to clone this repo, login to azure cli then initialize and apply the Terraform file. This workflow will deploy the whole infrastructure and output the hosted application's URL. 
+**East US update:** Follow [DEPLOYMENT.md](DEPLOYMENT.md) for the current Terraform workflow, Windows/Linux setup, quota requirements, and cleanup. The resource group is now created by Terraform. The application remains intentionally vulnerable for isolated security training.
+
+To ease the deployment process the user just needs to clone this repo, login to azure cli then initialize and apply the Terraform file. This workflow will deploy the whole infrastructure and output the hosted application's URL.
 
 Here are the steps to follow:
 
 **Step 1.** Clone the repo
 
 ```sh
-git clone https://github.com/ine-labs/AzureGoat
+git clone https://github.com/gasbugs/AzureGoat
+cd AzureGoat
 ```
 
 **Step 2.** Login to Azure CLI
@@ -69,13 +72,14 @@ az login
 
 And follow the steps to sign in.
 
-**Step 3.** Create a resource group with the name "azuregoat_app".
+**Step 3.** Prepare the Python virtual environment and `terraform.tfvars` as described in [DEPLOYMENT.md](DEPLOYMENT.md). Set the target subscription explicitly. Do not manually create the resource group.
 
 **Step 4.** Use terraform to deploy AzureGoat
 
 ```sh
 terraform init
-terraform apply --auto-approve
+terraform plan -out=azuregoat.tfplan
+terraform apply azuregoat.tfplan
 ```
 
 # Modules
@@ -106,9 +110,9 @@ D Yashwanth Babu, Software Engineer (Cloud), INE <dbabu@ine.com>
 
 # Solutions
 
-The offensive manuals are available in the [attack-manuals](attack-manuals/) directory, and the defensive manuals are available in the [defence-manuals](defence-manuals/) directory. 
+The offensive manuals are available in the [attack-manuals](attack-manuals/) directory, and the defensive manuals are available in the [defence-manuals](defence-manuals/) directory.
 
-Module 1 Exploitation Videos: https://www.youtube.com/playlist?list=PLcIpBb4raSZGdYHKpqIu5Boc2ziga4oGY 
+Module 1 Exploitation Videos: https://www.youtube.com/playlist?list=PLcIpBb4raSZGdYHKpqIu5Boc2ziga4oGY
 
 # Documentation
 
@@ -138,8 +142,8 @@ Blog Application User Profile
 
 ## Contribution Guidelines
 
-* Contributions in the form of code improvements, module updates, feature improvements, and any general suggestions are welcome. 
-* Improvements to the functionalities of the current modules are also welcome. 
+* Contributions in the form of code improvements, module updates, feature improvements, and any general suggestions are welcome.
+* Improvements to the functionalities of the current modules are also welcome.
 * The source code for each module can be found in ``modules/module-<Number>/src`` this can be used to modify the existing application code.
 
 # License
@@ -155,6 +159,6 @@ You should have received a copy of the GNU General Public License along with thi
 - [AWSGoat](https://github.com/ine-labs/AWSGoat)
 - [GCPGoat](https://github.com/ine-labs/GCPGoat)
 - [PA Toolkit (Pentester Academy Wireshark Toolkit)](https://github.com/pentesteracademy/patoolkit)
-- [ReconPal: Leveraging NLP for Infosec](https://github.com/pentesteracademy/reconpal) 
+- [ReconPal: Leveraging NLP for Infosec](https://github.com/pentesteracademy/reconpal)
 - [VoIPShark: Open Source VoIP Analysis Platform](https://github.com/pentesteracademy/voipshark)
 - [BLEMystique](https://github.com/pentesteracademy/blemystique)

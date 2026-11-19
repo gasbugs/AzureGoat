@@ -1,6 +1,7 @@
 {
-  "name": "",
-  "version": "",
+  "name": "azuregoat-frontend",
+  "version": "1.0.0",
+  "engines": {"node": "22.x"},
   "description": "",
   "scripts" : {
     "test": "echo \"No tests yet...\""
