@@ -1,4 +1,4 @@
-subscription_id = "YOUR-SUBSCRIPTION-ID"
+# Optional: subscription_id = "YOUR-SUBSCRIPTION-ID"
 resource_group  = "azuregoat_app"
 location        = "australiaeast"
 vm_size         = "Standard_D2s_v6"

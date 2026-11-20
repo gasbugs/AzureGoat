@@ -42,7 +42,7 @@ python -m venv .venv
 Copy-Item terraform.tfvars.example terraform.tfvars
 ```
 
-Set `subscription_id` explicitly in `terraform.tfvars`. On Windows set `python_executable` to the absolute forward-slash path to `.venv/Scripts/python.exe`; on Linux use the absolute path to `.venv/bin/python` (or the supplied relative path).
+Run `az account show --query id -o tsv` to check the selected subscription. When `subscription_id` and `ARM_SUBSCRIPTION_ID` are unset, AzureRM uses that subscription. Set `subscription_id` only if you need to override the default. On Windows set `python_executable` to the absolute forward-slash path to `.venv/Scripts/python.exe`; on Linux use the absolute path to `.venv/bin/python` (or the supplied relative path).
 
 ```powershell
 terraform init

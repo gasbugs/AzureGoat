@@ -11,8 +11,9 @@ provider "azurerm" {
   subscription_id = var.subscription_id
 }
 variable "subscription_id" {
-  description = "Explicit target subscription; never silently switch subscriptions."
+  description = "Optional subscription override. AzureRM uses ARM_SUBSCRIPTION_ID or the selected Azure CLI subscription when unset."
   type        = string
+  default     = null
 }
 variable "resource_group" {
   type    = string
